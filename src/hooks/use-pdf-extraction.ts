@@ -3,99 +3,34 @@ import { useExtractionStore } from '@/store/extraction-store';
 import { validatePdfFile } from '@/utils/file-validation';
 import { processDocument } from '@/services/pdf-service';
 import { ExtractionStatus } from '@/types/pdf.types';
-import { extractStructuredData } from '@/services/extraction-engine';
-import { classifyDocument } from '@/services/classifier';
-import { performOcr } from '@/services/ocr-service';
-import * as pdfjsLib from 'pdfjs-dist';
-const CONCURRENCY_LIMIT = 3;
 export function usePdfExtraction() {
   const setFile = useExtractionStore(s => s.setFile);
-  const setQueue = useExtractionStore(s => s.setQueue);
-  const setProcessingIndex = useExtractionStore(s => s.setProcessingIndex);
   const setStatus = useExtractionStore(s => s.setStatus);
   const setError = useExtractionStore(s => s.setError);
   const setResults = useExtractionStore(s => s.setResults);
-  const setOcrActive = useExtractionStore(s => s.setOcrActive);
-  const addBatchResult = useExtractionStore(s => s.addBatchResult);
-  const processFile = useCallback(async (file: File) => {
-    try {
-      const validation = validatePdfFile(file);
-      if (!validation.success) throw new Error(validation.error);
-      let result = await processDocument(file);
-      const totalTextCount = result.pages.reduce((acc, p) => acc + p.lines.length, 0);
-      if (totalTextCount === 0) {
-        setOcrActive(true);
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        for (let j = 0; j < result.pages.length; j++) {
-          const page = await pdf.getPage(j + 1);
-          const viewport = page.getViewport({ scale: 2.0 });
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
-          if (context) {
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-            await page.render({ canvasContext: context, viewport }).promise;
-            const ocrResult = await performOcr(canvas);
-            result.pages[j].lines = ocrResult.lines;
-          }
-        }
-        setOcrActive(false);
-      }
-      const allLines = result.pages.flatMap(p => p.lines);
-      const classification = classifyDocument(allLines.join(' '));
-      const structured = extractStructuredData(allLines, classification.type);
-      addBatchResult(file.name, {
-        fileName: file.name,
-        pages: result.pages,
-        structuredData: structured,
-        docType: classification.type,
-        confidence: classification.confidence,
-        status: 'complete'
-      });
-      return { result, structured, classification };
-    } catch (err) {
-      addBatchResult(file.name, {
-        fileName: file.name,
-        pages: [],
-        structuredData: {},
-        docType: 'generic',
-        confidence: 0,
-        status: 'error'
-      });
-      throw err;
-    }
-  }, [setOcrActive, addBatchResult]);
-  const startExtraction = useCallback(async (files: File[]) => {
-    if (files.length === 0) return;
-    setQueue(files);
-    setStatus(ExtractionStatus.EXTRACTING);
+  const startExtraction = useCallback(async (file: File) => {
+    // 1. Reset and Set File
+    setFile(file);
+    setStatus(ExtractionStatus.VALIDATING);
     setError(null);
-    const fileList = [...files];
-    let completedCount = 0;
-    const runNext = async (): Promise<void> => {
-      if (fileList.length === 0) return;
-      const file = fileList.shift()!;
-      try {
-        setProcessingIndex(files.indexOf(file));
-        setFile(file);
-        const { result, structured, classification } = await processFile(file);
-        if (completedCount === 0) {
-          setResults(result.pages, result.totalPages, structured, classification.type, classification.confidence);
-        }
-      } catch (err) {
-        console.error(`Error processing ${file.name}:`, err);
-      } finally {
-        completedCount++;
-        await runNext();
-      }
-    };
-    const workers = Array.from(
-      { length: Math.min(files.length, CONCURRENCY_LIMIT) }, 
-      () => runNext()
-    );
-    await Promise.all(workers);
-    setStatus(ExtractionStatus.SUCCESS);
-  }, [setFile, setQueue, setProcessingIndex, setStatus, setError, setResults, processFile]);
+    // 2. Validate
+    const validation = validatePdfFile(file);
+    if (!validation.success) {
+      setStatus(ExtractionStatus.ERROR);
+      setError(validation.error || 'Invalid file format');
+      return;
+    }
+    // 3. Extract
+    try {
+      setStatus(ExtractionStatus.EXTRACTING);
+      const result = await processDocument(file);
+      setResults(result.pages, result.totalPages);
+      setStatus(ExtractionStatus.SUCCESS);
+    } catch (err) {
+      console.error('Extraction hook error:', err);
+      setStatus(ExtractionStatus.ERROR);
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred during extraction.');
+    }
+  }, [setFile, setStatus, setError, setResults]);
   return { startExtraction };
 }

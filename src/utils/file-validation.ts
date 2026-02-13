@@ -17,7 +17,7 @@ export function validatePdfFile(file: File): ValidationResult {
   if (!result.success) {
     return {
       success: false,
-      error: result.error.issues[0]?.message || 'Invalid file validation.',
+      error: result.error.errors[0].message,
     };
   }
   return { success: true };
