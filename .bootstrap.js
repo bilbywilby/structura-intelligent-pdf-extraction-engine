@@ -77,15 +77,7 @@ function updateWranglerJsonc() {
 }
 
 function runSetupCommands() {
-    const commands = [
-    "bun add pdfjs-dist@^4.4.168",
-    "bun add react-dropzone@^14.2.3",
-    "bun add tesseract.js@^5.1.1",
-    "bun add react-resizable-panels",
-    "bun add tesseract.js",
-    "bun add lucide-react@latest",
-    "bun add react-resizable-panels@^2.1.0"
-];
+    const commands = [];
     
     if (commands.length === 0) {
         console.log('⊘ No setup commands to run');
