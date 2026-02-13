@@ -40,8 +40,8 @@ export function ExtractionResults() {
           </div>
         </div>
       )}
-      <ResizablePanelGroup direction="horizontal" className="h-full">
-        <ResizablePanel defaultSize={50} minSize={30}>
+      <ResizablePanelGroup data-panel-group-direction="horizontal" className="h-full w-full flex overflow-hidden">
+        <ResizablePanel className="w-[480px] md:w-[600px] flex-shrink-0 flex flex-col">
           <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900/50">
             <div className="flex items-center justify-between p-4 border-b bg-background/50 backdrop-blur-md">
               <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-2 py-1 bg-muted rounded">
@@ -62,7 +62,7 @@ export function ExtractionResults() {
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={50} minSize={30}>
+        <ResizablePanel className="flex-1 min-w-[500px] flex flex-col">
           <div className="flex flex-col h-full">
             <Tabs defaultValue="intelligence" className="flex flex-col h-full">
               <div className="flex items-center justify-between px-6 pt-4 border-b">
