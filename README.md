@@ -1,6 +1,6 @@
 # Cloudflare Workers Full-Stack React Template
 
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/bilbywilby/structura-intelligent-pdf-extraction-engine)
 
 A production-ready full-stack application template powered by Cloudflare Workers. Features a modern React frontend with shadcn/ui components, Tailwind CSS, and a robust backend using Durable Objects for stateful entities, Hono routing, and TypeScript end-to-end.
 
@@ -133,7 +133,7 @@ POST   /api/client-errors      # Error reporting
 3. **Custom Domain** (optional):
    Edit `wrangler.jsonc` and run `wrangler deploy`.
 
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/bilbywilby/structura-intelligent-pdf-extraction-engine)
 
 View logs: `wrangler tail`
 
