@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, FileText, Shield, Zap, Layout, ArrowRight, Share2 } from 'lucide-react';
+import { Sparkles, FileText, Shield, Zap, Layout, ArrowRight, Share2, Database } from 'lucide-react';
 import { useExtractionStore } from '@/store/extraction-store';
 import { ExtractionStatus } from '@/types/pdf.types';
 import { PdfUploader } from '@/components/pdf/pdf-uploader';
@@ -16,7 +16,6 @@ export function HomePage() {
   const status = useExtractionStore(s => s.status);
   const reset = useExtractionStore(s => s.reset);
   const structuredData = useExtractionStore(s => s.structuredData);
-  const queue = useExtractionStore(s => s.queue);
   const handleShare = () => {
     const link = generateShareLink(structuredData);
     navigator.clipboard.writeText(link);
@@ -36,30 +35,41 @@ export function HomePage() {
                 exit={{ opacity: 0, scale: 0.98 }}
                 className="flex flex-col items-center"
               >
-                <header className="mb-16 text-center max-w-3xl mx-auto">
+                <header className="mb-16 text-center max-w-4xl mx-auto">
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-6 border border-primary/20 shadow-sm"
+                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-8 border border-primary/20 shadow-sm"
                   >
-                    <Sparkles className="w-4 h-4 fill-primary/20" />
-                    v3.0: Intelligent Batch Templates
+                    <Database className="w-4 h-4 fill-primary/20" />
+                    v4.0 Final: Enterprise Batch Pipeline
                   </motion.div>
-                  <h1 className="text-5xl md:text-7xl font-display font-bold tracking-tight text-foreground mb-6">
-                    Structure the <span className="text-primary italic">Unstructured</span>
+                  <h1 className="text-5xl md:text-8xl font-display font-black tracking-tight text-foreground mb-8 leading-[0.9]">
+                    PDFs to <span className="text-primary italic">Precision</span> Data
                   </h1>
-                  <p className="text-muted-foreground text-xl leading-relaxed mb-10">
-                    Structura transforms messy PDFs into clean, logical data streams.
-                    Batch process documents with smart templates.
+                  <p className="text-muted-foreground text-xl md:text-2xl leading-relaxed mb-12 max-w-2xl mx-auto">
+                    A high-performance extraction engine that structures unstructured documents into validated JSON in seconds.
                   </p>
-                  <div className="flex flex-wrap justify-center gap-4 mb-12">
+                  <div className="flex flex-wrap justify-center gap-6 mb-16">
                     <PdfUploader />
                   </div>
                 </header>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
-                  <FeatureCard icon={<Layout className="w-6 h-6" />} title="Smart Templates" description="Automatic identification of Invoices vs. Insurance policies." />
-                  <FeatureCard icon={<Shield className="w-6 h-6" />} title="Batch Processing" description="Upload multiple files and watch them process in sequence." />
-                  <FeatureCard icon={<Zap className="w-6 h-6" />} title="Privacy First" description="Browser-only OCR and extraction. Your data stays yours." />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
+                  <FeatureCard 
+                    icon={<Layout className="w-6 h-6" />} 
+                    title="Parallel Processing" 
+                    description="Upload dozens of documents at once. We process batches with a concurrency of 3 for maximum efficiency." 
+                  />
+                  <FeatureCard 
+                    icon={<Shield className="w-6 h-6" />} 
+                    title="Intelligent Templates" 
+                    description="Automatic classification for Invoices and Insurance Policies with context-aware field mapping." 
+                  />
+                  <FeatureCard 
+                    icon={<Zap className="w-6 h-6" />} 
+                    title="Client-Side Privacy" 
+                    description="Your sensitive documents never leave your browser unless you explicitly choose cloud-offload." 
+                  />
                 </div>
               </motion.div>
             ) : (
@@ -67,52 +77,54 @@ export function HomePage() {
                 key="workspace"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="w-full"
+                className="w-full space-y-8"
               >
-                <div className="flex items-center justify-between mb-8 pb-4 border-b">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary rounded-lg text-primary-foreground">
+                <div className="flex items-center justify-between pb-6 border-b">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-primary rounded-2xl text-primary-foreground shadow-primary">
                       <FileText className="w-6 h-6" />
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
-                        <h2 className="text-2xl font-bold tracking-tight">Workspace</h2>
-                        <Badge variant="secondary" className="bg-primary/5 text-primary border-primary/20 font-mono text-[10px] uppercase tracking-tighter">
-                          Live Template Active
+                      <div className="flex items-center gap-2 mb-1">
+                        <h2 className="text-3xl font-black tracking-tighter uppercase">Extraction Engine</h2>
+                        <Badge variant="secondary" className="bg-primary/5 text-primary border-primary/20 font-mono text-[10px] px-2 py-0">
+                          PIPELINE_ACTIVE
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">Editing and refining extracted entities</p>
+                      <p className="text-sm text-muted-foreground font-medium">Monitoring batch lifecycle and entity mapping</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Button variant="ghost" size="sm" onClick={handleShare} className="rounded-full">
-                      <Share2 className="mr-2 w-4 h-4" /> Share
+                    <Button variant="ghost" size="sm" onClick={handleShare} className="rounded-full h-10 px-5 border border-transparent hover:border-border">
+                      <Share2 className="mr-2 w-4 h-4" /> Share Workspace
                     </Button>
-                    <Button variant="outline" size="sm" onClick={reset} className="rounded-full">
+                    <Button variant="default" size="sm" onClick={reset} className="rounded-full h-10 px-6 shadow-glow">
                       New Batch
                       <ArrowRight className="ml-2 w-4 h-4" />
                     </Button>
                   </div>
                 </div>
-                <BatchQueue />
-                <ExtractionResults />
+                <div className="grid grid-cols-1 gap-8">
+                   <BatchQueue />
+                   <ExtractionResults />
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
       </div>
-      <Toaster richColors position="top-right" />
+      <Toaster richColors position="bottom-center" />
     </div>
   );
 }
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
   return (
-    <div className="group p-8 rounded-3xl bg-card border border-border/50 shadow-soft hover:shadow-glow hover:border-primary/20 transition-all duration-300">
-      <div className="w-12 h-12 rounded-2xl bg-primary/5 text-primary flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+    <div className="group p-10 rounded-[2.5rem] bg-card border border-border/50 shadow-soft hover:shadow-glow-lg hover:border-primary/20 transition-all duration-500">
+      <div className="w-14 h-14 rounded-2xl bg-primary/5 text-primary flex items-center justify-center mb-8 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500 shadow-sm">
         {icon}
       </div>
-      <h3 className="text-xl font-bold mb-3">{title}</h3>
-      <p className="text-muted-foreground leading-relaxed">{description}</p>
+      <h3 className="text-2xl font-bold mb-4 tracking-tight">{title}</h3>
+      <p className="text-muted-foreground leading-relaxed text-lg">{description}</p>
     </div>
   );
 }

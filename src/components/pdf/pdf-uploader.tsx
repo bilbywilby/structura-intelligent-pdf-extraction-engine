@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, FileText, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,15 +12,15 @@ export function PdfUploader() {
   const { startExtraction } = usePdfExtraction();
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
-      startExtraction(acceptedFiles[0]);
+      startExtraction(acceptedFiles);
     }
   }, [startExtraction]);
+  const isDisabled = status !== ExtractionStatus.IDLE && status !== ExtractionStatus.ERROR && status !== ExtractionStatus.SUCCESS;
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { 'application/pdf': ['.pdf'] },
-    maxFiles: 1,
-    multiple: false,
-    disabled: status !== ExtractionStatus.IDLE && status !== ExtractionStatus.ERROR
+    multiple: true,
+    disabled: isDisabled
   });
   const isLoading = status === ExtractionStatus.VALIDATING || status === ExtractionStatus.EXTRACTING;
   return (
@@ -54,27 +54,26 @@ export function PdfUploader() {
           </motion.div>
           <div className="space-y-2">
             <h3 className="text-2xl font-bold tracking-tight text-foreground">
-              {isLoading ? "Processing Document..." : isDragActive ? "Drop to Extract" : "Ready to Start?"}
+              {isLoading ? "Batch Processing..." : isDragActive ? "Drop to Extract" : "Drop Files Here"}
             </h3>
             <p className="text-muted-foreground max-w-[320px] mx-auto text-base">
-              {isLoading 
-                ? "Analyzing binary structures and mapping text fragments."
-                : "Drop your PDF file here, or click to explore local files."}
+              {isLoading
+                ? "Analyzing document structures in parallel."
+                : "Upload one or multiple PDFs to begin structured extraction."}
             </p>
           </div>
           {!isLoading && (
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 bg-muted/50 px-4 py-1.5 rounded-full border border-border/50">
               <Upload className="w-3 h-3" />
-              PDF Only • Max 25MB
+              Batch Mode Active • 25MB Limit
             </div>
           )}
         </div>
-        {/* Loading Progress Bar (Indeterminate for now) */}
         {isLoading && (
-          <motion.div 
+          <motion.div
             initial={{ width: 0 }}
             animate={{ width: "100%" }}
-            transition={{ duration: 2, repeat: Infinity }}
+            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
             className="absolute bottom-0 left-0 h-1.5 bg-primary"
           />
         )}

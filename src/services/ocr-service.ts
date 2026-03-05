@@ -4,10 +4,9 @@ export async function performOcr(canvas: HTMLCanvasElement): Promise<{ lines: st
   const worker = await createWorker('eng');
   try {
     const { data } = await worker.recognize(canvas);
-    // In Tesseract.js v5, the structure is data.words and data.lines for the first page
+    // In Tesseract.js v5, the structure is data.words and data.lines directly on the RecognizeResult
     const words = data.words || [];
     const linesArray = data.lines || [];
-    // Convert tesseract results to our RawTextItem format
     const rawItems: RawTextItem[] = words.map(word => ({
       str: word.text,
       x: word.bbox.x0,
