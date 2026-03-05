@@ -82,7 +82,8 @@ function runSetupCommands() {
     "bun add react-dropzone@^14.2.3",
     "bun add tesseract.js@^5.1.1",
     "bun add react-resizable-panels",
-    "bun add tesseract.js"
+    "bun add tesseract.js",
+    "bun add lucide-react@latest"
 ];
     
     if (commands.length === 0) {
