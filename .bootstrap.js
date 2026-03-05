@@ -83,7 +83,8 @@ function runSetupCommands() {
     "bun add tesseract.js@^5.1.1",
     "bun add react-resizable-panels",
     "bun add tesseract.js",
-    "bun add lucide-react@latest"
+    "bun add lucide-react@latest",
+    "bun add react-resizable-panels@^2.1.0"
 ];
     
     if (commands.length === 0) {
