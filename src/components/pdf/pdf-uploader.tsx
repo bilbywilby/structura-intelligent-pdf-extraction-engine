@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, FileText, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -15,7 +15,7 @@ export function PdfUploader() {
       startExtraction(acceptedFiles);
     }
   }, [startExtraction]);
-  const isDisabled = status !== ExtractionStatus.IDLE && status !== ExtractionStatus.ERROR && status !== ExtractionStatus.SUCCESS;
+  const isDisabled = status === ExtractionStatus.VALIDATING || status === ExtractionStatus.EXTRACTING;
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { 'application/pdf': ['.pdf'] },

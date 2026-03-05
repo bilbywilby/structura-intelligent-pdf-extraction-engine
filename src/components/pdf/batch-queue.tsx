@@ -12,12 +12,12 @@ export function BatchQueue() {
   const status = useExtractionStore(s => s.status);
   const batchResults = useExtractionStore(s => s.batchResults);
   const reset = useExtractionStore(s => s.reset);
-  if (queue.length === 0) return null;
   const progress = useMemo(() => {
+    if (queue.length === 0) return 0;
     const completed = Object.values(batchResults).length;
     return (completed / queue.length) * 100;
   }, [batchResults, queue.length]);
-  const isFinished = status === ExtractionStatus.SUCCESS && Object.values(batchResults).length === queue.length;
+  if (queue.length === 0) return null;
   return (
     <div className="w-full bg-card border rounded-3xl p-8 shadow-sm">
       <div className="flex items-center justify-between mb-8">
@@ -37,7 +37,7 @@ export function BatchQueue() {
         </div>
       </div>
       <div className="relative h-2 bg-muted rounded-full overflow-hidden mb-8">
-        <motion.div 
+        <motion.div
             className="absolute inset-y-0 left-0 bg-primary"
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
@@ -50,10 +50,9 @@ export function BatchQueue() {
           const isDone = !!result && result.status === 'complete';
           const isError = !!result && result.status === 'error';
           const isProcessing = idx === processingIndex && status === ExtractionStatus.EXTRACTING && !isDone && !isError;
-          const isWaiting = !isDone && !isError && !isProcessing;
           return (
             <motion.div
-              key={file.name + idx}
+              key={`${file.name}-${idx}`}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className={cn(
@@ -65,7 +64,7 @@ export function BatchQueue() {
               <div className="flex items-center gap-3 min-w-0">
                 <div className={cn(
                     "p-2 rounded-xl shrink-0",
-                    isDone ? "bg-green-500/10 text-green-500" : 
+                    isDone ? "bg-green-500/10 text-green-500" :
                     isProcessing ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                 )}>
                   <FileText className="w-4 h-4" />

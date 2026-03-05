@@ -25,9 +25,9 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { PdfPreview } from './pdf-preview';
-import { IntelligenceView } from './intelligence-view';
 import { TemplatePreview } from './template-preview';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,11 +50,6 @@ export function ExtractionResults() {
     navigator.clipboard.writeText(text);
     toast.success('Content copied to clipboard');
   };
-  const fullJsonOutput = JSON.stringify({
-    metadata: { fileName: file?.name, processedAt: new Date().toISOString() },
-    pages: pages.map(p => ({ number: p.pageNumber, lines: p.lines })),
-    structured: structuredData
-  }, null, 2);
   if (!file) return null;
   return (
     <div className="relative h-[800px] w-full border rounded-3xl overflow-hidden bg-card shadow-2xl flex flex-col">
@@ -130,8 +125,8 @@ export function ExtractionResults() {
                   <div className="p-6 space-y-4">
                     <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-4">Batch Overview</h4>
                     {Object.values(batchResults).map((res) => (
-                      <div 
-                        key={res.fileName} 
+                      <div
+                        key={res.fileName}
                         className={cn(
                           "flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer hover:border-primary/30",
                           file.name === res.fileName ? "bg-primary/5 border-primary/20 shadow-sm" : "bg-muted/10"

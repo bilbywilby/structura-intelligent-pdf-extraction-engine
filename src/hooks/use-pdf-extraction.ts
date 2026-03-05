@@ -17,11 +17,10 @@ export function usePdfExtraction() {
   const setResults = useExtractionStore(s => s.setResults);
   const setOcrActive = useExtractionStore(s => s.setOcrActive);
   const addBatchResult = useExtractionStore(s => s.addBatchResult);
-  const processFile = async (file: File) => {
+  const processFile = useCallback(async (file: File) => {
     try {
       const validation = validatePdfFile(file);
       if (!validation.success) throw new Error(validation.error);
-      // Large file or complex logic could trigger backend OCR here
       let result = await processDocument(file);
       const totalTextCount = result.pages.reduce((acc, p) => acc + p.lines.length, 0);
       if (totalTextCount === 0) {
@@ -66,38 +65,37 @@ export function usePdfExtraction() {
       });
       throw err;
     }
-  };
+  }, [setOcrActive, addBatchResult]);
   const startExtraction = useCallback(async (files: File[]) => {
     if (files.length === 0) return;
     setQueue(files);
     setStatus(ExtractionStatus.EXTRACTING);
     setError(null);
-    const queue = [...files];
-    const active = new Set();
+    const fileList = [...files];
     let completedCount = 0;
     const runNext = async (): Promise<void> => {
-      if (queue.length === 0) return;
-      const file = queue.shift()!;
-      active.add(file);
+      if (fileList.length === 0) return;
+      const file = fileList.shift()!;
       try {
         setProcessingIndex(files.indexOf(file));
         setFile(file);
         const { result, structured, classification } = await processFile(file);
-        // If it's the first file, set as active view immediately
         if (completedCount === 0) {
           setResults(result.pages, result.totalPages, structured, classification.type, classification.confidence);
         }
       } catch (err) {
         console.error(`Error processing ${file.name}:`, err);
       } finally {
-        active.delete(file);
         completedCount++;
         await runNext();
       }
     };
-    const initialWorkers = Array.from({ length: Math.min(files.length, CONCURRENCY_LIMIT) }, () => runNext());
-    await Promise.all(initialWorkers);
+    const workers = Array.from(
+      { length: Math.min(files.length, CONCURRENCY_LIMIT) }, 
+      () => runNext()
+    );
+    await Promise.all(workers);
     setStatus(ExtractionStatus.SUCCESS);
-  }, [setFile, setQueue, setProcessingIndex, setStatus, setError, setResults, setOcrActive, addBatchResult]);
+  }, [setFile, setQueue, setProcessingIndex, setStatus, setError, setResults, processFile]);
   return { startExtraction };
 }
